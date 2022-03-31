@@ -10,10 +10,10 @@ public class FileDataDao implements DataDao {
     private final Logger log = Logger.getInstance();
 
     @Override
-    public String getData(String incomingFilePath) {
+    public String getData(Path incomingFilePath) {
         byte[] data = new byte[0];
         try {
-            data = Files.readAllBytes(Path.of(incomingFilePath));
+            data = Files.readAllBytes(incomingFilePath);
         } catch (IOException e) {
             System.out.println();
             log.error(e.getMessage());
@@ -22,9 +22,9 @@ public class FileDataDao implements DataDao {
     }
 
     @Override
-    public void writeData(String incomingFile, String path) {
+    public void writeData(String incomingFile, Path path) {
         try {
-            Files.write(Path.of(path), incomingFile.getBytes());
+            Files.write(path, incomingFile.getBytes());
         } catch (IOException e) {
             log.error(e.getMessage());
         }

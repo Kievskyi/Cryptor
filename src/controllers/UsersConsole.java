@@ -56,14 +56,13 @@ public class UsersConsole {
 
     private void decryptDataByBruteForce() {
         Map<Integer, String> decryptionOptions;
-        String path = getPath();
+        Path path = getPath();
         String data = fileDataDao.getData(path);
-        decryptionOptions = bruteForce.decrypt(data, path);
+        decryptionOptions = bruteForce.decrypt(data);
         String decryptedTextFromBF = getDecryptedTextFromBF(decryptionOptions);
         String dateAndTime = getDateAndTime();
-        String formattedPath = getFormattedPath(path) + "/";
         String formattedName = getFormattedNameOfFile(path);
-        String finalPath = formattedPath + formattedName + "- decrypted by BF (" + dateAndTime + ").txt";
+        Path finalPath = Path.of(path.getParent().toString(), formattedName + " - decrypted by BF (" + " " + dateAndTime + ").txt");
         fileDataDao.writeData(decryptedTextFromBF, finalPath);
         logger.info(EmojiD.INFO.getEmoji() + " " + ColorEnum.BLUE.getColor() + "File with decrypted text successfully created"
                 + ColorEnum.RESET.getColor() + " " + EmojiD.INFO.getEmoji());
@@ -72,14 +71,13 @@ public class UsersConsole {
     }
 
     private void decryptData() {
-        String path = getPath();
+        Path path = getPath();
         int key = getKey();
         String data = fileDataDao.getData(path);
         String decryptedText = caesarCipher.decrypt(data, key);
         String dateAndTime = getDateAndTime();
-        String formattedPath = getFormattedPath(path) + "/";
         String formattedName = getFormattedNameOfFile(path);
-        String finalPath = formattedPath + formattedName + "- decrypted (" + dateAndTime + ").txt";
+        Path finalPath = Path.of(path.getParent().toString(), formattedName + " - decrypted (" + " " + dateAndTime + ").txt");
         fileDataDao.writeData(decryptedText, finalPath);
         logger.info(EmojiD.INFO.getEmoji() + " " + ColorEnum.BLUE.getColor() + "Your text has been successfully decrypted"
                 + ColorEnum.RESET.getColor() + " " + EmojiD.INFO.getEmoji());
@@ -88,26 +86,21 @@ public class UsersConsole {
     }
 
     private void encryptData() {
-        String path = getPath();
+        Path path = getPath();
         int key = getKey();
         String data = fileDataDao.getData(path);
         String encryptedText = caesarCipher.encrypt(data, key);
         String dateAndTime = getDateAndTime();
-        String finalPath = getFormattedFinalPath(path, dateAndTime);
+        String fileNameWithoutExtention = getFileNameWithoutExtention(path);
+        Path finalPath = Path.of(path.getParent().toString(), fileNameWithoutExtention + " - encrypted (" + " " + dateAndTime + ").txt");
         fileDataDao.writeData(encryptedText, finalPath);
         System.out.println();
         logger.info(EmojiD.INFO.getEmoji() + " " + ColorEnum.BLUE.getColor() + "Your text has been successfully encrypted"
                 + ColorEnum.RESET.getColor() + " " + EmojiD.INFO.getEmoji());
         System.out.println();
         System.out.println();
-
     }
 
-    private String getFormattedFinalPath(String path, String dateAndTime) {
-        String formattedPath = getFormattedPath(path) + "/";
-        String fileNameWithoutExtention = getFileNameWithoutExtention(path);
-        return formattedPath + fileNameWithoutExtention + " - encrypted (" + " " + dateAndTime + ").txt";
-    }
 
     private String getDecryptedTextFromBF(Map<Integer, String> decryptionOptions) {
         System.out.println(ColorEnum.BLACK.getColor() + "__________________________________" + ColorEnum.RESET.getColor());
@@ -120,8 +113,8 @@ public class UsersConsole {
         return decryptionOptions.get(key);
     }
 
-    private String getFormattedNameOfFile(String path) {
-        String nameOfFile = Path.of(path).getFileName().toString();
+    private String getFormattedNameOfFile(Path path) {
+        String nameOfFile = Path.of(String.valueOf(path)).getFileName().toString();
         int i = nameOfFile.indexOf('-');
         if (i != -1) {
             nameOfFile = nameOfFile.substring(0, i);
@@ -129,12 +122,9 @@ public class UsersConsole {
         return nameOfFile;
     }
 
-    private String getFormattedPath(String path) {
-        return Path.of(path).getParent().toString();
-    }
 
-    private String getFileNameWithoutExtention(String path) {
-        String formattedNameOfFile = Path.of(path).getFileName().toString();
+    private String getFileNameWithoutExtention(Path path) {
+        String formattedNameOfFile = Path.of(String.valueOf(path)).getFileName().toString();
         int i = formattedNameOfFile.lastIndexOf('.');
         if (i != -1) {
             formattedNameOfFile = formattedNameOfFile.substring(0, i);
@@ -172,13 +162,13 @@ public class UsersConsole {
         }
     }
 
-    private String getPath() {
-        Scanner scanner1 = new Scanner(System.in);
+    private Path getPath() {
+        Scanner scanner = new Scanner(System.in);
         System.out.println();
         System.out.println(EmojiD.LOUPE.getEmoji() + " " + ColorEnum.BG_WHITE.getColor()
                 + "Write below a path to the file" + ColorEnum.RESET.getColor() + " " + EmojiD.LOUPE.getEmoji());
         System.out.println();
-        return scanner1.nextLine();
+        return Path.of(scanner.nextLine());
     }
 
     private int getKey() {

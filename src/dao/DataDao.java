@@ -1,8 +1,10 @@
 package dao;
 
+import java.nio.file.Path;
+
 public interface DataDao {
 
-    String getData(String incomingFile);
+    String getData(Path incomingFile);
 
-    void writeData(String incomingFile, String path);
+    void writeData(String incomingFile, Path path);
 }

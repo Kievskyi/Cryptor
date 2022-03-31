@@ -11,7 +11,7 @@ public class BruteForce {
     Map<Integer, String> decryptionOptions = new HashMap<>();
 
 
-    public Map<Integer, String> decrypt(String data, String path) {
+    public Map<Integer, String> decrypt(String data) {
 
         charsPosition cp = new charsPosition();
         for (int i = 0; i < ALPHABET.length(); i++) {
