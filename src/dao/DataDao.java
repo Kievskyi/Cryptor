@@ -1,6 +1,6 @@
 package dao;
 
-public interface dataDao {
+public interface DataDao {
 
     String getData(String incomingFile);
 

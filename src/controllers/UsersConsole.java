@@ -3,18 +3,22 @@ package controllers;
 import dao.FileDataDao;
 import service.BruteForce;
 import service.CaesarCipher;
-import util.ConsoleColour;
-import util.Emoji;
+import service.Logger;
+import util.ColorEnum;
+import util.EmojiD;
 
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Scanner;
 
 public class UsersConsole {
 
-    private Emoji emoji = new Emoji();
-    private FileDataDao fileDataDao = new FileDataDao();
-    private ConsoleColour color = new ConsoleColour();
-    private CaesarCipher caesarCipher = new CaesarCipher();
-    private BruteForce bruteForce = new BruteForce();
+    private final FileDataDao fileDataDao = new FileDataDao();
+    private final CaesarCipher caesarCipher = new CaesarCipher();
+    private final BruteForce bruteForce = new BruteForce();
+    private final Logger logger = Logger.getInstance();
 
     public void startTheProgram() {
         printMainMenu();
@@ -30,44 +34,149 @@ public class UsersConsole {
             Scanner scanner = new Scanner(System.in);
             int inputChoice = scanner.nextInt();
 
-            if (inputChoice == 0) {
+            int exit = 0;
+            if (inputChoice == exit) {
                 closeTheProgram(scanner);
                 break;
             }
 
             switch (inputChoice) {
                 case 1 -> {
-                    String path = getPath();
-                    int key = getKey();
-                    String data = fileDataDao.getData(path);
-                    caesarCipher.encrypt(data, key, path);
+                    encryptData();
                 }
                 case 2 -> {
-                    String path = getPath();
-                    int key = getKey();
-                    String data = fileDataDao.getData(path);
-                    caesarCipher.decrypt(data, key, path);
+                    decryptData();
                 }
                 case 3 -> {
-                    String path = getPath();
-                    String data = fileDataDao.getData(path);
-                    bruteForce.decrypt(data, path);
+                    decryptDataByBruteForce();
                 }
             }
         } while (true);
     }
 
+    private void decryptDataByBruteForce() {
+        Map<Integer, String> decryptionOptions;
+        String path = getPath();
+        String data = fileDataDao.getData(path);
+        decryptionOptions = bruteForce.decrypt(data, path);
+        String decryptedTextFromBF = getDecryptedTextFromBF(decryptionOptions);
+        String dateAndTime = getDateAndTime();
+        String formattedPath = getFormattedPath(path) + "/";
+        String formattedName = getFormattedNameOfFile(path);
+        String finalPath = formattedPath + formattedName + "- decrypted by BF (" + dateAndTime + ").txt";
+        fileDataDao.writeData(decryptedTextFromBF, finalPath);
+        logger.info(EmojiD.INFO.getEmoji() + " " + ColorEnum.BLUE.getColor() + "File with decrypted text successfully created"
+                + ColorEnum.RESET.getColor() + " " + EmojiD.INFO.getEmoji());
+        System.out.println();
+        System.out.println();
+    }
+
+    private void decryptData() {
+        String path = getPath();
+        int key = getKey();
+        String data = fileDataDao.getData(path);
+        String decryptedText = caesarCipher.decrypt(data, key);
+        String dateAndTime = getDateAndTime();
+        String formattedPath = getFormattedPath(path) + "/";
+        String formattedName = getFormattedNameOfFile(path);
+        String finalPath = formattedPath + formattedName + "- decrypted (" + dateAndTime + ").txt";
+        fileDataDao.writeData(decryptedText, finalPath);
+        logger.info(EmojiD.INFO.getEmoji() + " " + ColorEnum.BLUE.getColor() + "Your text has been successfully decrypted"
+                + ColorEnum.RESET.getColor() + " " + EmojiD.INFO.getEmoji());
+        System.out.println();
+        System.out.println();
+    }
+
+    private void encryptData() {
+        String path = getPath();
+        int key = getKey();
+        String data = fileDataDao.getData(path);
+        String encryptedText = caesarCipher.encrypt(data, key);
+        String dateAndTime = getDateAndTime();
+        String finalPath = getFormattedFinalPath(path, dateAndTime);
+        fileDataDao.writeData(encryptedText, finalPath);
+        System.out.println();
+        logger.info(EmojiD.INFO.getEmoji() + " " + ColorEnum.BLUE.getColor() + "Your text has been successfully encrypted"
+                + ColorEnum.RESET.getColor() + " " + EmojiD.INFO.getEmoji());
+        System.out.println();
+        System.out.println();
+
+    }
+
+    private String getFormattedFinalPath(String path, String dateAndTime) {
+        String formattedPath = getFormattedPath(path) + "/";
+        String fileNameWithoutExtention = getFileNameWithoutExtention(path);
+        return formattedPath + fileNameWithoutExtention + " - encrypted (" + " " + dateAndTime + ").txt";
+    }
+
+    private String getDecryptedTextFromBF(Map<Integer, String> decryptionOptions) {
+        System.out.println(ColorEnum.BLACK.getColor() + "__________________________________" + ColorEnum.RESET.getColor());
+        System.out.println();
+        System.out.println(EmojiD.KEY.getEmoji() + " " + ColorEnum.BG_WHITE.getColor()
+                + "Chose the right key" + ColorEnum.RESET.getColor() + " " + EmojiD.KEY.getEmoji());
+        System.out.println();
+        Scanner scanner = new Scanner(System.in);
+        int key = scanner.nextInt();
+        return decryptionOptions.get(key);
+    }
+
+    private String getFormattedNameOfFile(String path) {
+        String nameOfFile = Path.of(path).getFileName().toString();
+        int i = nameOfFile.indexOf('-');
+        if (i != -1) {
+            nameOfFile = nameOfFile.substring(0, i);
+        }
+        return nameOfFile;
+    }
+
+    private String getFormattedPath(String path) {
+        return Path.of(path).getParent().toString();
+    }
+
+    private String getFileNameWithoutExtention(String path) {
+        String formattedNameOfFile = Path.of(path).getFileName().toString();
+        int i = formattedNameOfFile.lastIndexOf('.');
+        if (i != -1) {
+            formattedNameOfFile = formattedNameOfFile.substring(0, i);
+        }
+        return formattedNameOfFile;
+    }
+
+    private String getDateAndTime() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yy | HH-mm-ss");
+        return dtf.format(LocalDateTime.now());
+    }
+
     private void closeTheProgram(Scanner scanner) {
         System.out.println();
-        System.out.println(emoji.BYE + " " + color.BG_BLACK + "Goodbye!" + color.RESET + " " + emoji.BYE);
+        printGoodBye();
         scanner.close();
-        return;
+    }
+
+    private void printGoodBye() {
+        int key = 0;
+        String[] arr = {"G", "O", "O", "D", "B", "Y", "E"};
+        int height = 3;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j <= 10; j++) {
+                if (i == 0 && j < 8 || i == 2 && j < 8) {
+                    System.out.print(EmojiD.ZZZ.getEmoji());
+                } else if ((i == 1 && j < 2) || (i == 1 && j >= 9)) {
+                    System.out.print(EmojiD.ZZZ.getEmoji());
+                } else if (i == 1) {
+                    System.out.print(ColorEnum.PURPLE.getColor() + arr[key] + ColorEnum.RESET.getColor());
+                    key++;
+                }
+            }
+            System.out.println();
+        }
     }
 
     private String getPath() {
         Scanner scanner1 = new Scanner(System.in);
         System.out.println();
-        System.out.println(emoji.LOUPE + " " + color.BG_WHITE + "Write below a path to the file" + color.RESET + " " + emoji.LOUPE);
+        System.out.println(EmojiD.LOUPE.getEmoji() + " " + ColorEnum.BG_WHITE.getColor()
+                + "Write below a path to the file" + ColorEnum.RESET.getColor() + " " + EmojiD.LOUPE.getEmoji());
         System.out.println();
         return scanner1.nextLine();
     }
@@ -75,14 +184,16 @@ public class UsersConsole {
     private int getKey() {
         Scanner scanner = new Scanner(System.in);
         System.out.println();
-        System.out.println(emoji.KEY + " " + color.BG_WHITE + "Write below yours secret number of key (from 0 till 73)" + color.RESET + " " + emoji.KEY);
+        System.out.println(EmojiD.KEY.getEmoji() + " " + ColorEnum.BG_WHITE.getColor()
+                + "Write below yours secret number of key (from 0 till 73)" + ColorEnum.RESET.getColor() + " " + EmojiD.KEY.getEmoji());
         System.out.println();
         int dataKey = 0;
         try {
             dataKey = scanner.nextInt();
         } catch (Exception e) {
             System.out.println();
-            System.out.println(emoji.WARNING + color.RED + " Incorrect key " + color.RESET + emoji.WARNING);
+            System.out.println(EmojiD.WARNING.getEmoji() + ColorEnum.RED.getColor() + " Incorrect key "
+                    + ColorEnum.RESET.getColor() + EmojiD.WARNING.getEmoji());
         }
         return dataKey;
     }
@@ -92,30 +203,35 @@ public class UsersConsole {
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 20; j++) {
                 if (i == 0 || (i == 1 && j < 5) || (i == 1 && j > 14) || (i == 3 && j < 5) || (i == 3 && j > 14) || i == 4) {
-                    System.out.print(emoji.DEVIL);
+                    System.out.print(EmojiD.DEVIL.getEmoji());
                 } else if ((i == 2 && j < 5) || (i == 2 && j > 14)) {
-                    System.out.print(emoji.DEVIL);
+                    System.out.print(EmojiD.DEVIL.getEmoji());
                 } else if (i == 2 && j == 5) {
-                    System.out.print(emoji.ROCKET + color.BG_BLACK + "CRYPTOGRAPHER" + color.RESET + emoji.ROCKET);
+                    System.out.print(EmojiD.ROCKET.getEmoji() + ColorEnum.BG_BLACK.getColor() + "CRYPTOGRAPHER"
+                            + ColorEnum.RESET.getColor() + EmojiD.ROCKET.getEmoji());
                 } else if (i == 1 || i == 3) {
-                    System.out.print(emoji.ROCKET);
+                    System.out.print(EmojiD.ROCKET.getEmoji());
                 }
             }
             System.out.println();
         }
         System.out.println();
-        System.out.println(color.BG_WHITE + "Please, make your choice : " + color.RESET);
+        System.out.println(ColorEnum.BG_WHITE.getColor() + "Please, make your choice : " + ColorEnum.RESET.getColor());
         System.out.println();
-        System.out.println(color.BLACK + "__________________________________________________" + color.RESET);
+        System.out.println(ColorEnum.BLACK.getColor() + "__________________________________________________" + ColorEnum.RESET.getColor());
         System.out.println();
-        System.out.println(emoji.LOCK + " " + color.BG_BLACK + " 1 - Encrypt the file " + color.RESET + " " + emoji.LOCK);
-        System.out.println(emoji.UNLOCK + " " + color.BG_BLACK + " 2 - Decrypt the file " + color.RESET + " " + emoji.UNLOCK);
-        System.out.println(emoji.KEY_LOCK + " " + color.BG_BLACK + " 3 - Search the key by brute force method " + color.RESET + " " + emoji.KEY_LOCK);
+        System.out.println(EmojiD.LOCK.getEmoji() + " " + ColorEnum.BG_BLACK.getColor() + " 1 - Encrypt the file "
+                + ColorEnum.RESET.getColor() + " " + EmojiD.LOCK.getEmoji());
+        System.out.println(EmojiD.UNLOCK.getEmoji() + " " + ColorEnum.BG_BLACK.getColor() + " 2 - Decrypt the file "
+                + ColorEnum.RESET.getColor() + " " + EmojiD.UNLOCK.getEmoji());
+        System.out.println(EmojiD.KEY_LOCK.getEmoji() + " " + ColorEnum.BG_BLACK.getColor() + " 3 - Search the key by brute force method "
+                + ColorEnum.RESET.getColor() + " " + EmojiD.KEY_LOCK.getEmoji());
         System.out.println();
-        System.out.println(emoji.STOP + " " + color.BG_BLACK + " 0 - Exit " + color.RESET + " " + emoji.STOP);
-        System.out.println(color.BLACK + "__________________________________________________" + color.RESET);
+        System.out.println(EmojiD.STOP.getEmoji() + " " + ColorEnum.BG_BLACK.getColor() + " 0 - Exit "
+                + ColorEnum.RESET.getColor() + " " + EmojiD.STOP.getEmoji());
+        System.out.println(ColorEnum.BLACK.getColor() + "__________________________________________________" + ColorEnum.RESET.getColor());
         System.out.println();
-        System.out.println(color.BG_WHITE + "Write below the number of your choice :" + color.RESET);
+        System.out.println(ColorEnum.BG_WHITE.getColor() + "Write below the number of your choice :" + ColorEnum.RESET.getColor());
         System.out.println();
     }
 }

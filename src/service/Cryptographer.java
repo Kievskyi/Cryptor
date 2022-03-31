@@ -2,8 +2,8 @@ package service;
 
 public interface Cryptographer {
 
-    void encrypt(String incomingFile, int key, String path);
+    String encrypt(String incomingFile, int key);
 
-    void decrypt(String incomingFile, int key, String path);
+    String decrypt(String incomingFile, int key);
 
 }
