@@ -200,8 +200,10 @@ public class UsersConsole {
 
     private void printWelcomePage() {
         System.out.println();
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 20; j++) {
+        int height = 5;
+        for (int i = 0; i < height; i++) {
+            int length = 20;
+            for (int j = 0; j < length; j++) {
                 if (i == 0 || (i == 1 && j < 5) || (i == 1 && j > 14) || (i == 3 && j < 5) || (i == 3 && j > 14) || i == 4) {
                     System.out.print(EmojiD.DEVIL.getEmoji());
                 } else if ((i == 2 && j < 5) || (i == 2 && j > 14)) {
