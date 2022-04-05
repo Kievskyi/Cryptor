@@ -41,15 +41,11 @@ public class UsersConsole {
             }
 
             switch (inputChoice) {
-                case 1 -> {
-                    encryptData();
-                }
-                case 2 -> {
-                    decryptData();
-                }
-                case 3 -> {
-                    decryptDataByBruteForce();
-                }
+                case 1 -> encryptData();
+
+                case 2 -> decryptData();
+
+                case 3 -> decryptDataByBruteForce();
             }
         } while (true);
     }
@@ -115,9 +111,9 @@ public class UsersConsole {
 
     private String getFormattedNameOfFile(Path path) {
         String nameOfFile = Path.of(String.valueOf(path)).getFileName().toString();
-        int i = nameOfFile.indexOf('-');
-        if (i != -1) {
-            nameOfFile = nameOfFile.substring(0, i);
+        int indexOfFirstWord = nameOfFile.indexOf('-');
+        if (indexOfFirstWord != -1) {
+            nameOfFile = nameOfFile.substring(0, indexOfFirstWord);
         }
         return nameOfFile;
     }
@@ -125,9 +121,9 @@ public class UsersConsole {
 
     private String getFileNameWithoutExtention(Path path) {
         String formattedNameOfFile = Path.of(String.valueOf(path)).getFileName().toString();
-        int i = formattedNameOfFile.lastIndexOf('.');
-        if (i != -1) {
-            formattedNameOfFile = formattedNameOfFile.substring(0, i);
+        int indexOfLastWord = formattedNameOfFile.lastIndexOf('.');
+        if (indexOfLastWord != -1) {
+            formattedNameOfFile = formattedNameOfFile.substring(0, indexOfLastWord);
         }
         return formattedNameOfFile;
     }
@@ -145,16 +141,17 @@ public class UsersConsole {
 
     private void printGoodBye() {
         int key = 0;
-        String[] arr = {"G", "O", "O", "D", "B", "Y", "E"};
+        String[] goodbyeArr = {"G", "O", "O", "D", "B", "Y", "E"};
         int height = 3;
         for (int i = 0; i < height; i++) {
-            for (int j = 0; j <= 10; j++) {
+            int length = 10;
+            for (int j = 0; j <= length; j++) {
                 if (i == 0 && j < 8 || i == 2 && j < 8) {
                     System.out.print(EmojiD.ZZZ.getEmoji());
                 } else if ((i == 1 && j < 2) || (i == 1 && j >= 9)) {
                     System.out.print(EmojiD.ZZZ.getEmoji());
                 } else if (i == 1) {
-                    System.out.print(ColorEnum.PURPLE.getColor() + arr[key] + ColorEnum.RESET.getColor());
+                    System.out.print(ColorEnum.PURPLE.getColor() + goodbyeArr[key] + ColorEnum.RESET.getColor());
                     key++;
                 }
             }

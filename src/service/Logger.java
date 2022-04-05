@@ -18,10 +18,12 @@ public class Logger {
     }
 
     public void error(String incomingText) {
-        System.out.println(ColorEnum.RED.getColor() + EmojiD.WARNING.getEmoji() + " " + incomingText + " " + EmojiD.WARNING.getEmoji() + ColorEnum.RESET.getColor());
+        System.out.println(ColorEnum.RED.getColor() + EmojiD.WARNING.getEmoji() + " " + incomingText
+                + " " + EmojiD.WARNING.getEmoji() + ColorEnum.RESET.getColor());
     }
 
     public void info(String incomingText) {
-        System.out.println(ColorEnum.GREEN.getColor() + EmojiD.INFO.getEmoji() + " " + incomingText + " " + EmojiD.INFO.getEmoji() + ColorEnum.RESET.getColor());
+        System.out.println(ColorEnum.GREEN.getColor() + EmojiD.INFO.getEmoji() + " " + incomingText
+                + " " + EmojiD.INFO.getEmoji() + ColorEnum.RESET.getColor());
     }
 }

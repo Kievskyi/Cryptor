@@ -7,27 +7,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BruteForce {
+
     private static final String ALPHABET = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя,.!:?-\" АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
     Map<Integer, String> decryptionOptions = new HashMap<>();
 
-
     public Map<Integer, String> decrypt(String data) {
 
-        charsPosition cp = new charsPosition();
+        charsPosition charsPosition = new charsPosition();
         for (int i = 0; i < ALPHABET.length(); i++) {
             StringBuilder decryptedText = new StringBuilder();
             int key = i;
             for (int j = 0; j < data.length(); j++) {
-                int index = cp.indexOfChar(data.charAt(j));
+                int index = charsPosition.indexOfChar(data.charAt(j));
 
                 if (index == -1) {
                     decryptedText.append(data.charAt(j));
                     continue;
                 }
                 if ((index - key) >= 0) {
-                    decryptedText.append(cp.charAtIndex(index - key));
+                    decryptedText.append(charsPosition.charAtIndex(index - key));
                 } else {
-                    decryptedText.append(cp.charAtIndex((index - key) + ALPHABET.length()));
+                    decryptedText.append(charsPosition.charAtIndex((index - key) + ALPHABET.length()));
                 }
             }
             decryptionOptions.put(key, decryptedText.toString());
